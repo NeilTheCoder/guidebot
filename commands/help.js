@@ -7,6 +7,8 @@ help command, its extended help is shown.
 */
 
 exports.run = (client, message, args, level) => {
+  // Calls the RichEmbed function
+  const { RichEmbed } = require('discord.js');
   // If no specific command is called, show all filtered commands.
   if (!args[0]) {
     // Load guild settings (for prefixes and eventually per-guild tweaks)
@@ -21,17 +23,21 @@ exports.run = (client, message, args, level) => {
     const longest = commandNames.reduce((long, str) => Math.max(long, str.length), 0);
 
     let currentCategory = "";
-    let output = `= Command List =\n\n[Use ${settings.prefix}help <commandname> for details]\n`;
+    let output = `Here are a list of Commands for the Guild: __**${message.guild.name}**__ for your permission Level!\nPlease do \`\n${settings.prefix}help <command name>\`\ for more details of a Command!`;
     const sorted = myCommands.array().sort((p, c) => p.help.category > c.help.category ? 1 :  p.help.name > c.help.name && p.help.category === c.help.category ? 1 : -1 );
     sorted.forEach( c => {
       const cat = c.help.category.toProperCase();
       if (currentCategory !== cat) {
-        output += `\u200b\n== ${cat} ==\n`;
+        output += `\n__${cat}__\n`;
         currentCategory = cat;
       }
-      output += `${settings.prefix}${c.help.name}${" ".repeat(longest - c.help.name.length)} :: ${c.help.description}\n`;
+      output += `**${settings.prefix}${c.help.name}**: ${c.help.description}\n`;
     });
-    message.channel.send(output, {code: "asciidoc", split: { char: "\u200b" }});
+    var embed = new RichEmbed()
+      .setColor('RANDOM') // Random Color
+      .setAuthor(message.author.username, message.author.avatarURL)
+      .setDescription(output)
+    message.author.send({ embed })
   } else {
     // Show individual command's help.
     let command = args[0];
